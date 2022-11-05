@@ -4,4 +4,4 @@
 
 It's zhihuishu video test electron application
 
-Welcome to improve the function
+Welcome to improve the project function
