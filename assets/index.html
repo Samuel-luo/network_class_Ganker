@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <title>智慧树测试</title>
+    <link rel="stylesheet" href="./style/index.css">
+</head>
+<body>
+<h1>欢迎来到智慧树测试软件</h1>
+<div class="container">
+    <div class="info-box">
+        <div class="info-line">账号：<input id="account" type="text" value=""/></div>
+        <div class="info-line">密码：<input id="password" type="text" value=""/></div>
+        <button id="start">Start</button>
+    </div>
+    <div class="logs">
+        <div id="logs"></div>
+    </div>
+</div>
+<footer>本软件仅供学习交流使用，不得用于商业用途，作者不承担任何法律责任</footer>
+<script src="./js/index.js"></script>
+</body>
+</html>
