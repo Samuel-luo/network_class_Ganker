@@ -1,6 +1,6 @@
 {
   "name": "network_class",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "conquer the network_class",
   "main": "main.js",
   "scripts": {
