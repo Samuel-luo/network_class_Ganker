@@ -1,16 +1,15 @@
-const gankVideo = require('./Video/gankVideo.js');
-
-// 轮询当前页面状态
-module.exports = (driver, getStep, setStep) => {
+// 轮询当前页面状态，状态为 3 退出轮询
+module.exports = (driver, getStep, setStep, polling) => {
   setInterval(() => {
-    pollingFn(driver, getStep, setStep).catch((err) => {
+    if (getStep() === 3) process.exit(0);
+    pollingFn(driver, getStep, setStep, polling).catch((err) => {
       console.log('pollingStateError:', err);
       process.exit(0);
     })
-  }, 8000);
+  }, 5000);
 }
 
-const pollingFn = async (driver, getStep, setStep) => {
+const pollingFn = async (driver, getStep, setStep, polling) => {
   let allWindowHandles = await driver.getAllWindowHandles().catch(() => {
     process.exit(0)
   });
@@ -33,16 +32,5 @@ const pollingFn = async (driver, getStep, setStep) => {
   }
 
   // 切换当前模式
-  if (/https:\/\/studyvideoh5.zhihuishu.com\/stuStudy\?recruitAndCourseId=.*/.test(current_url)) {
-    setStep(1);
-    try {
-      await gankVideo(driver);
-    } catch (err) {
-      console.log('gankVideoError:', err);
-    }
-  } else if (/https:\/\/onlineexamh5new.zhihuishu.com\/stuExamWeb.html#\/webExamList\/dohomework/.test(current_url)) {
-    setStep(2);
-  } else {
-    setStep(0);
-  }
+  await polling(driver, current_url, getStep, setStep);
 }

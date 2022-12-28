@@ -40,10 +40,10 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
 })
 
-async function handleStart(e, account, password) {
+async function handleStart(e, account, password, platform, isFillAP) {
   if (!subprocess) {
     try {
-      subprocess = createChildProcess({account, password});
+      subprocess = createChildProcess({account, password, platform, isFillAP});
     } catch (err) {
       logFn('createWorkerError:', err);
       return -1;
@@ -51,7 +51,7 @@ async function handleStart(e, account, password) {
     return 1;
   } else {
     if (subprocess) subprocess.send('exit');
-    subprocess = createChildProcess({account, password});
+    subprocess = createChildProcess({account, password, platform, isFillAP});
   }
 }
 
@@ -61,7 +61,9 @@ function createChildProcess(data) {
     stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     env: {
       account: data.account,
-      password: data.password
+      password: data.password,
+      platform: data.platform,
+      isFillAP: data.isFillAP,
     }
   });
   subprocess.stdout.on('data', (msg) => {

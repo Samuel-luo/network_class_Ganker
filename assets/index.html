@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <title>智慧树测试</title>
+    <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">-->
+    <title>网课测试</title>
     <link rel="stylesheet" href="./style/index.css">
 </head>
 <body>
-<h1>欢迎来到智慧树测试软件</h1>
+<h1>欢迎来到网课测试软件</h1>
 <div class="container">
     <div class="info-box">
         <div class="info-line">账号：<input id="account" type="text" value=""/></div>
         <div class="info-line">密码：<input id="password" type="text" value=""/></div>
+        <div class="info-line">平台url：<input id="platform" type="text" value="" /></div>
+        <div class="info-line">是否尝试填充账密：<input id="isFillAP" type="checkbox"/></div>
         <button id="start">Start</button>
+        <div class="info-line" style="margin-top: 10px">以下平台会自动匹配url（- 平台名：url）</br>- 智慧树：zhihuishu</br>- 实训：shixun</div>
     </div>
     <div class="logs">
         <div id="logs"></div>
