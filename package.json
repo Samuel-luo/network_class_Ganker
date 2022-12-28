@@ -1,7 +1,7 @@
 {
-  "name": "zhihuishu",
+  "name": "network_class",
   "version": "0.0.1",
-  "description": "conquer the wisdom tree",
+  "description": "conquer the network_class",
   "main": "main.js",
   "scripts": {
     "test": "electron .",
