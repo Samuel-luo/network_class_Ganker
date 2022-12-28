@@ -12,8 +12,6 @@ let password = process.env.password;
 let platform = process.env.platform;
 let isFillAP = process.env.isFillAP;
 
-console.log(account, password, platform, isFillAP);
-
 platform = ((originUrl) => {
   switch (originUrl) {
     case "zhihuishu": {

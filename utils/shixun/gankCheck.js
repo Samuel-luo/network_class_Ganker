@@ -9,11 +9,6 @@ module.exports = async function (driver, getStep, setStep) {
       console.log("进入 iframe");
       setStep(2);
     }
-    let iframes = await driver.findElements(By.tagName('iframe'));
-    if (iframes && iframes.length) {
-      setStep(1);
-      throw "怎么还有 iframe：应该是出了什么问题，联系一下开发者吧！";
-    }
     let buttons = await driver.findElements(By.className('plv-iar-btn-default pws-btn-bg-color pws-vclass-btn--primary'))
     if (!buttons || !buttons.length) throw "没有检测到按钮"
     await buttons[0].click();
