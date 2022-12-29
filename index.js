@@ -25,6 +25,7 @@ platform = ((originUrl) => {
       return {
         url: "http://pt.1000phone.com/userLogin",
         polling: shixunPolling,
+        pollingInterval: 10000,
       }
     }
     default: {
@@ -49,7 +50,8 @@ async function main() {
       console.log('fillAccountPasswordError:', err);
     }
   }
-  pollingStatus(driver, getStep, setStep, platform.polling);
+  // 默认 5s
+  pollingStatus(driver, getStep, setStep, platform.polling, platform.pollingInterval || 5000);
 }
 
 main().catch((err) => {

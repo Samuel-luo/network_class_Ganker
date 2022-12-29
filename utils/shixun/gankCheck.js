@@ -11,7 +11,13 @@ module.exports = async function (driver, getStep, setStep) {
     }
     let buttons = await driver.findElements(By.className('plv-iar-btn-default pws-btn-bg-color pws-vclass-btn--primary'))
     if (!buttons || !buttons.length) throw "没有检测到按钮"
-    await buttons[0].click();
+    let i = 0;
+    while (i < buttons.length) {
+      if (await buttons[i].getAttribute("innerText") === "立即签到") {
+        await buttons[i].click();
+      }
+      i++;
+    }
   } catch (err) {
     console.log("还没有进行签到呢: ", typeof err === "string" ? err : "嘿嘿");
   }

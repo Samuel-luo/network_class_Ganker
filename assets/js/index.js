@@ -5,11 +5,15 @@ window.addEventListener('DOMContentLoaded', () => {
   let isFillAP = document.getElementById('isFillAP');
   let button = document.getElementById('start');
   let logs = document.getElementById('logs');
-
+  let clearLogs = document.getElementById('clearLogs');
 
   button.addEventListener('click', async () => {
     let res = await window.electronAPI.start(account.value, password.value, platform.value, isFillAP.checked);
     console.log('createChildProcess:', res);
+  })
+
+  clearLogs.addEventListener('click', () => {
+    logs.innerText = '';
   })
 
   window.electronAPI.processLog((e, ...args) => {

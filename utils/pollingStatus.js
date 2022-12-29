@@ -1,12 +1,11 @@
-// 轮询当前页面状态，状态为 3 退出轮询
-module.exports = (driver, getStep, setStep, polling) => {
+module.exports = (driver, getStep, setStep, polling, pollingInterval) => {
   setInterval(() => {
-    if (getStep() === 3) process.exit(0);
+    // if (getStep() === 3) process.exit(0);
     pollingFn(driver, getStep, setStep, polling).catch((err) => {
       console.log('pollingStateError:', err);
       process.exit(0);
     })
-  }, 5000);
+  }, pollingInterval);
 }
 
 const pollingFn = async (driver, getStep, setStep, polling) => {
