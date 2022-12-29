@@ -52,7 +52,7 @@ async function handleStart(e, account, password, platform, isFillAP) {
     return 1;
 }
 
-function createChildProcess(data) {
+function createChildProcess(data, index) {
   let subprocess = fork(app.isPackaged ? app.getAppPath() + '/index.js' : './index.js', {
     cwd: app.isPackaged ? app.getAppPath() : __dirname,
     stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
@@ -71,7 +71,7 @@ function createChildProcess(data) {
   })
   subprocess.on('close', (...args) => {
     logFn('child_processClose:', ...args);
-    subprocess = null;
+    subprocesses[index] = undefined;
   })
   return subprocess;
 }
