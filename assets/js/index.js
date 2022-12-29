@@ -3,12 +3,13 @@ window.addEventListener('DOMContentLoaded', () => {
   let password = document.getElementById('password');
   let platform = document.getElementById('platform');
   let isFillAP = document.getElementById('isFillAP');
+  let chromeUrl = document.getElementById('chromeUrl');
   let button = document.getElementById('start');
   let logs = document.getElementById('logs');
   let clearLogs = document.getElementById('clearLogs');
 
   button.addEventListener('click', async () => {
-    let res = await window.electronAPI.start(account.value, password.value, platform.value, isFillAP.checked);
+    let res = await window.electronAPI.start(account.value, password.value, platform.value, isFillAP.checked, chromeUrl.value);
     console.log('createChildProcess:', res);
   })
 

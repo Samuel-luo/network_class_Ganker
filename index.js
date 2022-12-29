@@ -11,6 +11,7 @@ let account = process.env.account;
 let password = process.env.password;
 let platform = process.env.platform;
 let isFillAP = process.env.isFillAP;
+let chromeUrl = process.env.chromeUrl;
 
 platform = ((originUrl) => {
   switch (originUrl) {
@@ -40,10 +41,16 @@ platform = ((originUrl) => {
 })(platform);
 
 async function main() {
-  driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(new chrome.Options().addArguments("--disable-blink-features=AutomationControlled").addArguments("--window-size=1000,1000")).build();
-  await driver.get(platform.url);
+  if (chromeUrl) {
+    const options = new chrome.Options();
+    options.setChromeBinaryPath(chromeUrl);
+    driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(options.addArguments("--disable-blink-features=AutomationControlled").addArguments("--window-size=1000,1000")).build();
+  } else {
+    driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(new chrome.Options().addArguments("--disable-blink-features=AutomationControlled").addArguments("--window-size=1000,1000")).build();
+  }
+  await driver.get(platform.url || "https://baidu.com");
   let {getStep, setStep} = await definedStepStatus(0);
-  if (isFillAP) {
+  if (isFillAP === "true") {
     try {
       await fillAccountPassword(driver, account, password, platform.fillAP);
     } catch (err) {
