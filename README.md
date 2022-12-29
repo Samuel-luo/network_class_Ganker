@@ -1,7 +1,7 @@
-# zhihuishuGanker
+# network_class_Ganker
 
-*zhihuishu made me crazy!!!*
+*network_class made me crazy!!!*
 
-It's zhihuishu video test electron application
+It's network studying platform test electron's application
 
 Welcome to improve the project function
