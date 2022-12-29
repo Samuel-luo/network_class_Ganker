@@ -2,7 +2,7 @@ const {app, BrowserWindow, ipcMain} = require('electron');
 const {fork} = require('child_process');
 const path = require("path");
 
-let subprocess = null;
+let subprocesses = [];
 let logFn = (...args) => {
   console.log(...args);
 }
@@ -36,23 +36,20 @@ app.whenReady().then(() => {
 
 
 app.on('window-all-closed', () => {
-  if (subprocess) subprocess.send('exit');
+  subprocesses.forEach(subprocess => {
+    if (subprocess) subprocess.send('exit');
+  })
   if (process.platform !== 'darwin') app.quit()
 })
 
 async function handleStart(e, account, password, platform, isFillAP) {
-  if (!subprocess) {
     try {
-      subprocess = createChildProcess({account, password, platform, isFillAP});
+      subprocesses.push(createChildProcess({account, password, platform, isFillAP}));
     } catch (err) {
       logFn('createWorkerError:', err);
       return -1;
     }
     return 1;
-  } else {
-    if (subprocess) subprocess.send('exit');
-    subprocess = createChildProcess({account, password, platform, isFillAP});
-  }
 }
 
 function createChildProcess(data) {
@@ -81,11 +78,15 @@ function createChildProcess(data) {
 
 process.on('SIGINT', (...args) => {
   logFn('main_processExitSIGINT:', ...args);
-  if (subprocess) subprocess.send('exit');
+  subprocesses.forEach(subprocess => {
+    if (subprocess) subprocess.send('exit');
+  })
 })
 
 process.on('exit', (...args) => {
   logFn('main_processExit:', ...args);
-  if (subprocess) subprocess.send('exit');
+  subprocesses.forEach(subprocess => {
+    if (subprocess) subprocess.send('exit');
+  })
 })
 
