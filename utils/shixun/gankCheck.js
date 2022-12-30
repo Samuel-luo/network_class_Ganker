@@ -4,21 +4,27 @@ module.exports = async function (driver, getStep, setStep) {
   try {
     if (getStep() < 2) {
       let iframes = await driver.findElements(By.tagName('iframe'));
-      if (!iframes || !iframes.length) throw "没有成功加载页面"
+      if (!iframes || !iframes.length) return;
       await driver.switchTo().frame(iframes[0]);
       console.log("进入 iframe");
       setStep(2);
     }
     let buttons = await driver.findElements(By.className('plv-iar-btn-default pws-btn-bg-color pws-vclass-btn--primary'))
-    if (!buttons || !buttons.length) throw "没有检测到按钮"
+    if (!buttons || !buttons.length) {
+      await driver.switchTo().defaultContent();
+      setStep(1);
+      console.log("页面可能有变化，返回上一层");
+    }
     let i = 0;
     while (i < buttons.length) {
-      if (await buttons[i].getAttribute("innerText") === "立即签到") {
+      if ((await buttons[i].getAttribute("innerText")).trim() === "立即签到") {
+        if (!await buttons[i].isDisplayed() || !await buttons[i].isEnabled()) return;
         await buttons[i].click();
+        console.log("点击了一次签到");
       }
       i++;
     }
   } catch (err) {
-    console.log("还没有进行签到呢: ", typeof err === "string" ? err : "嘿嘿");
+    console.log("捕获错误: ", err);
   }
 }

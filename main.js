@@ -1,6 +1,7 @@
 const {app, BrowserWindow, ipcMain} = require('electron');
 const {fork} = require('child_process');
 const path = require("path");
+const fs = require("fs");
 
 let subprocesses = [];
 let logFn = (...args) => {
@@ -24,6 +25,7 @@ const createWindow = () => {
 
 app.whenReady().then(() => {
   ipcMain.handle('start', handleStart)
+  ipcMain.handle('get-rec-info', getRecInfo)
   createWindow()
 
   app.on('activate', () => {
@@ -39,12 +41,28 @@ app.on('window-all-closed', () => {
 
 async function handleStart(e, account, password, platform, isFillAP, chromeUrl) {
   try {
+    fs.writeFile(app.isPackaged ? app.getAppPath() + '/data.rec' : './data.rec', JSON.stringify({
+      account,
+      password,
+      platform,
+      isFillAP,
+      chromeUrl
+    }), {encoding: 'utf8'}, () => {
+    })
     subprocesses.push(createChildProcess({account, password, platform, isFillAP, chromeUrl}, subprocesses.length));
   } catch (err) {
     logFn('createWorkerError:', err);
     return -1;
   }
   return 1;
+}
+
+function getRecInfo() {
+  try {
+    return fs.readFileSync(app.isPackaged ? app.getAppPath() + '/data.rec' : './data.rec', {encoding: 'utf8'});
+  } catch (err) {
+    return "{}";
+  }
 }
 
 function createChildProcess(data, index) {

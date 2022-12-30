@@ -26,7 +26,7 @@ platform = ((originUrl) => {
       return {
         url: "http://pt.1000phone.com/userLogin",
         polling: shixunPolling,
-        pollingInterval: 10000,
+        pollingInterval: 5000,
       }
     }
     default: {

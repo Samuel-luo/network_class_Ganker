@@ -8,6 +8,19 @@ window.addEventListener('DOMContentLoaded', () => {
   let logs = document.getElementById('logs');
   let clearLogs = document.getElementById('clearLogs');
 
+  window.electronAPI.getRecInfo().then(res => {
+    const rec = JSON.parse(res || '{}');
+    account.value = rec.account || '';
+    password.value = rec.password || '';
+    platform.value = rec.platform || '';
+    if (rec.isFillAP) {
+      isFillAP.setAttribute('checked', '');
+    } else {
+      isFillAP.removeAttribute('checked');
+    }
+    chromeUrl.value = rec.chromeUrl || '';
+  })
+
   button.addEventListener('click', async () => {
     let res = await window.electronAPI.start(account.value, password.value, platform.value, isFillAP.checked, chromeUrl.value);
     console.log('createChildProcess:', res);
