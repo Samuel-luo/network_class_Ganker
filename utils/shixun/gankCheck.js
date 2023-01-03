@@ -9,15 +9,17 @@ module.exports = async function (driver, getStep, setStep) {
       console.log("进入 iframe");
       setStep(2);
     }
-    let buttons = await driver.findElements(By.className('plv-iar-btn-default pws-btn-bg-color pws-vclass-btn--primary'))
-    if (!buttons || !buttons.length) {
+    let mediaContent = await driver.findElement(By.id('mboxContent')).catch(() => null)
+    if (!mediaContent) {
       await driver.switchTo().defaultContent();
       setStep(1);
       console.log("页面可能有变化，返回上一层");
     }
+    let buttons = await driver.findElements(By.className('btn-signed'));
+    if (!buttons || !buttons.length) return;
     let i = 0;
     while (i < buttons.length) {
-      if ((await buttons[i].getAttribute("innerText")).trim() === "立即签到") {
+      if ((await buttons[i].getAttribute("innerText")).trim() === "签到") {
         if (!await buttons[i].isDisplayed() || !await buttons[i].isEnabled()) return;
         await buttons[i].click();
         console.log("点击了一次签到");

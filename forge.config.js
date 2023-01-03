@@ -1,5 +1,8 @@
 module.exports = {
-  packagerConfig: {},
+  packagerConfig: {
+    asar: true,
+    ignore: /updater\.cpp/,
+  },
   rebuildConfig: {},
   makers: [
     // {

@@ -4,9 +4,10 @@ window.addEventListener('DOMContentLoaded', () => {
   let platform = document.getElementById('platform');
   let isFillAP = document.getElementById('isFillAP');
   let chromeUrl = document.getElementById('chromeUrl');
-  let button = document.getElementById('start');
-  let logs = document.getElementById('logs');
+  let start = document.getElementById('start');
   let clearLogs = document.getElementById('clearLogs');
+  let updateApp = document.getElementById('updateApp');
+  let logs = document.getElementById('logs');
 
   window.electronAPI.getRecInfo().then(res => {
     const rec = JSON.parse(res || '{}');
@@ -21,13 +22,17 @@ window.addEventListener('DOMContentLoaded', () => {
     chromeUrl.value = rec.chromeUrl || '';
   })
 
-  button.addEventListener('click', async () => {
+  start.addEventListener('click', async () => {
     let res = await window.electronAPI.start(account.value, password.value, platform.value, isFillAP.checked, chromeUrl.value);
     console.log('createChildProcess:', res);
   })
 
   clearLogs.addEventListener('click', () => {
     logs.innerText = '';
+  })
+
+  updateApp.addEventListener('click', async () => {
+    await window.electronAPI.updateApp();
   })
 
   window.electronAPI.processLog((e, ...args) => {
