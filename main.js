@@ -6,6 +6,7 @@ const axios = require("axios");
 const {spawn} = require('child_process');
 
 let subprocesses = [];
+let isLoading = false;
 let logFn = (...args) => {
   console.log(...args);
 }
@@ -42,6 +43,11 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
 })
 
+app.on('before-quit', () => {
+  const resourcePath = path.parse(app.getAppPath()).dir;
+  if (isLoading) _removeFile(`${resourcePath}/app.asar-new`);
+})
+
 app.on('quit', () => {
   const resourcePath = path.parse(app.getAppPath()).dir;
   if (fs.existsSync(`${resourcePath}/updater.exe`) && fs.existsSync(`${resourcePath}/app.asar-new`)) {
@@ -75,17 +81,20 @@ async function handleStart(e, account, password, platform, isFillAP, chromeUrl) 
 }
 
 async function updateApp() {
-  if (!app.isPackaged) return;
+  if (!app.isPackaged || isLoading) return;
   logFn("开始更新...");
   const resourcePath = path.parse(app.getAppPath()).dir;
   try {
     logFn("创建更新脚本...");
     if (!fs.existsSync(`${resourcePath}/updater.exe`)) fs.copyFileSync(app.getAppPath() + '/updater.exe', `${resourcePath}/updater.exe`);
-    logFn("开始下载最新版本资源...")
+    logFn("开始下载最新版本资源...");
+    isLoading = true;
     if (await _downloadFile('https://github.com/Samuel-luo/network_class_Ganker/releases/latest/download/app.asar', `${resourcePath}/app.asar-new`).then(() => 1).catch(() => 0)) {
       app.exit(0)
     } else {
       logFn("下载失败！");
+      _removeFile(`${resourcePath}/app.asar-new`);
+      isLoading = false;
     }
   } catch (err) {
     logFn(err);
@@ -144,15 +153,16 @@ function _closeChildProcess() {
 
 
 async function _downloadFile(url, filepath) {
-  const writer = fs.createWriteStream(filepath);
   const response = await axios({
     url,
     method: "GET",
-    responseType: "stream",
+    responseType: "arraybuffer",
   });
-  response.data.pipe(writer);
-  return new Promise((resolve, reject) => {
-    writer.on("finish", resolve);
-    writer.on("error", reject);
-  });
+  fs.writeFileSync(filepath, response.data, {encoding: "binary"})
+}
+
+function _removeFile(filePath) {
+  while (fs.existsSync(filePath)) {
+    fs.rmSync(filePath);
+  }
 }
