@@ -1,7 +1,7 @@
 module.exports = {
   packagerConfig: {
     asar: true,
-    ignore: /updater\.cpp/,
+    ignore: /(updater\.cpp|forge\.config\.js|\.gitignore)/,
   },
   rebuildConfig: {},
   makers: [

@@ -1,12 +1,13 @@
 const {app, BrowserWindow, ipcMain} = require('electron');
-const {fork} = require('child_process');
+const {spawn, fork, exec} = require('child_process');
 const path = require("path");
 const fs = require("fs");
 const axios = require("axios");
-const {spawn} = require('child_process');
+const asar = require('asar');
 
 let subprocesses = [];
 let isLoading = false;
+const resourcePath = path.parse(app.getAppPath()).dir;
 let logFn = (...args) => {
   console.log(...args);
 }
@@ -27,6 +28,7 @@ const createWindow = () => {
 }
 
 app.whenReady().then(() => {
+  if (app.isPackaged && !fs.existsSync(`${resourcePath}/release`)) asar.extractAll(`${resourcePath}/app.asar`, `${resourcePath}/release`);
   ipcMain.handle('start', handleStart)
   ipcMain.handle('updateApp', updateApp)
   ipcMain.handle('get-rec-info', getRecInfo)
@@ -44,12 +46,10 @@ app.on('window-all-closed', () => {
 })
 
 app.on('before-quit', () => {
-  const resourcePath = path.parse(app.getAppPath()).dir;
   if (isLoading) _removeFile(`${resourcePath}/app.asar-new`);
 })
 
 app.on('quit', () => {
-  const resourcePath = path.parse(app.getAppPath()).dir;
   if (fs.existsSync(`${resourcePath}/updater.exe`) && fs.existsSync(`${resourcePath}/app.asar-new`)) {
     logFn("开始替换资源...");
     const child = spawn(`"${resourcePath}/updater.exe"`, {
@@ -80,16 +80,25 @@ async function handleStart(e, account, password, platform, isFillAP, chromeUrl) 
   return 1;
 }
 
+function getRecInfo() {
+  try {
+    return fs.readFileSync(app.isPackaged ? app.getAppPath() + '/data.rec' : './data.rec', {encoding: 'utf8'});
+  } catch (err) {
+    return "{}";
+  }
+}
+
 async function updateApp() {
   if (!app.isPackaged || isLoading) return;
+  _closeChildProcess();
   logFn("开始更新...");
-  const resourcePath = path.parse(app.getAppPath()).dir;
   try {
     logFn("创建更新脚本...");
-    if (!fs.existsSync(`${resourcePath}/updater.exe`)) fs.copyFileSync(app.getAppPath() + '/updater.exe', `${resourcePath}/updater.exe`);
+    if (!fs.existsSync(`${resourcePath}/updater.exe`)) _copyFile(app.getAppPath() + '/updater.exe', `${resourcePath}/updater.exe`);
     logFn("开始下载最新版本资源...");
     isLoading = true;
     if (await _downloadFile('https://github.com/Samuel-luo/network_class_Ganker/releases/latest/download/app.asar', `${resourcePath}/app.asar-new`).then(() => 1).catch(() => 0)) {
+      _removeDir(`${resourcePath}/release`);
       app.exit(0)
     } else {
       logFn("下载失败！");
@@ -101,17 +110,9 @@ async function updateApp() {
   }
 }
 
-function getRecInfo() {
-  try {
-    return fs.readFileSync(app.isPackaged ? app.getAppPath() + '/data.rec' : './data.rec', {encoding: 'utf8'});
-  } catch (err) {
-    return "{}";
-  }
-}
-
 function createChildProcess(data, index) {
-  let subprocess = fork(app.isPackaged ? app.getAppPath() + '/index.js' : './index.js', {
-    cwd: app.isPackaged ? app.getAppPath() : __dirname, stdio: ['pipe', 'pipe', 'pipe', 'ipc'], env: {
+  let subprocess = fork(app.isPackaged ? path.join(resourcePath, 'release', 'index.js') : './index.js', {
+    cwd: app.isPackaged ? `${resourcePath}/release` : __dirname, stdio: ['pipe', 'pipe', 'pipe', 'ipc'], env: {
       account: data.account, password: data.password, platform: data.platform, isFillAP: data.isFillAP, chromeUrl: data.chromeUrl
     }
   });
@@ -142,9 +143,7 @@ function _closeChildProcess() {
   let subprocess;
   while (subprocess = subprocesses.shift()) {
     try {
-      if (subprocess) {
-        subprocess.send('exit');
-      }
+      subprocess.send('exit');
     } catch (err) {
       // 静默处理 err
     }
@@ -161,8 +160,31 @@ async function _downloadFile(url, filepath) {
   fs.writeFileSync(filepath, response.data, {encoding: "binary"})
 }
 
+function _copyFile(from, to) {
+  fs.copyFileSync(from, to);
+}
+
 function _removeFile(filePath) {
   while (fs.existsSync(filePath)) {
     fs.rmSync(filePath);
+  }
+}
+
+function _removeDir(filePath) {
+  const files = []
+  if (fs.existsSync(filePath)) {
+    const files = fs.readdirSync(filePath)
+    files.forEach((file) => {
+      const nextFilePath = `${filePath}/${file}`
+      const states = fs.statSync(nextFilePath)
+      if (states.isDirectory()) {
+        // recurse
+        _removeDir(nextFilePath)
+      } else {
+        // delete file
+        fs.unlinkSync(nextFilePath)
+      }
+    })
+    fs.rmdirSync(filePath)
   }
 }
