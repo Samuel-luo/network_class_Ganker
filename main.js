@@ -64,7 +64,7 @@ app.on('quit', () => {
 
 async function handleStart(e, account, password, platform, isFillAP, chromeUrl) {
   try {
-    fs.writeFile(app.isPackaged ? app.getAppPath() + '/data.rec' : './data.rec', JSON.stringify({
+    fs.writeFile(app.isPackaged ? `${resourcePath}/data.rec` : './data.rec', JSON.stringify({
       account,
       password,
       platform,
@@ -82,7 +82,7 @@ async function handleStart(e, account, password, platform, isFillAP, chromeUrl) 
 
 function getRecInfo() {
   try {
-    return fs.readFileSync(app.isPackaged ? app.getAppPath() + '/data.rec' : './data.rec', {encoding: 'utf8'});
+    return fs.readFileSync(app.isPackaged ? `${resourcePath}/data.rec` : './data.rec', {encoding: 'utf8'});
   } catch (err) {
     return "{}";
   }
